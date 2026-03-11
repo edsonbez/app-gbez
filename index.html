@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="manifest" href="manifest.json">
+    <title>Estúdio GBez</title>
+    <style>
+        /* MANTENDO SUA ESTRUTURA ORIGINAL */
+        body { font-family: -apple-system, system-ui, sans-serif; background: #000; color: #fff; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; overflow: hidden; }
+        .logo { width: 120px; border-radius: 20px; border: 2px solid #fff; margin-bottom: 20px; box-shadow: 0 0 20px rgba(255,255,255,0.1); }
+        h1 { font-size: 22px; margin-bottom: 10px; }
+        p { font-size: 16px; color: #aaa; padding: 0 30px; }
+
+        /* BOTÃO ANDROID (Original) */
+        .btn-install { background: #fff; color: #000; padding: 18px 40px; border-radius: 50px; font-weight: bold; font-size: 18px; border: none; display: none; margin-top: 20px; animation: pulse 2s infinite; }
+
+        /* GUIA IPHONE (Agora com sua imagem ideal) */
+        #ios-guide { display: none; margin-top: 10px; width: 90%; }
+        .img-tutorial { width: 100%; max-height: 55vh; object-fit: contain; border-radius: 15px; }
+
+        /* LINK DE PULAR (Branco para facilitar leitura) */
+        .skip-link { margin-top: 40px; color: #ffffff; text-decoration: underline; font-size: 14px; cursor: pointer; font-weight: 500; }
+
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+    </style>
+</head>
+<body>
+
+    <img src="icon.png" class="logo" alt="Logo GBez">
+    <h1>Estúdio Gabriela Bez</h1>
+    <p id="main-text">Para facilitar seu acesso diário:</p>
+
+    <button id="btnAndroid" class="btn-install">INSTALAR APP AGORA</button>
+
+    <div id="ios-guide">
+        <img src="tutorial.png" class="img-tutorial">
+    </div>
+
+    <div class="skip-link" id="btnSkip">Já tenho o app ou quero entrar agora</div>
+
+    <script>
+        /* TODA A SUA LÓGICA ORIGINAL PRESERVADA */
+        const btnAndroid = document.getElementById('btnAndroid');
+        const iosGuide = document.getElementById('ios-guide');
+        const btnSkip = document.getElementById('btnSkip');
+        const mainText = document.getElementById('main-text');
+        
+        const hotmartUrl = "https://sso.hotmart.com/login?service=https%3A%2F%2Fsso.hotmart.com%2Foauth2.0%2FcallbackAuthorize%3Fclient_id%3Db432cdd3-eb60-46bd-892b-5b450a65153e%26scope%3Dopenid%2Bprofile%2Bauthorities%2Bemail%2Bresources%2Buser%26redirect_uri%3Dhttps%253A%252F%252Fhotmart.com%252Fpt-br%252Fclub%252Festudio-gabriela-bez%252Fauth%252Flogin%253Frealm%253Dclub%26response_type%3Dcode%26response_mode%3Dquery%26state%3Dcf2e5cf515484ffeac06190f34ffdcf3%26client_name%3DCasOAuthClient";
+
+        // Deixe como 'false' para testar no Android real ou 'true' para o PC
+        const isIos = true;
+        //const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+        if (isStandalone) window.location.href = hotmartUrl;
+
+        if (isIos && !isStandalone) {
+            iosGuide.style.display = 'block';
+            mainText.innerText = "Siga o passo a passo abaixo:";
+        }
+
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            btnAndroid.style.display = 'block';
+            iosGuide.style.display = 'none';
+        });
+
+        btnAndroid.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') window.location.href = hotmartUrl;
+            }
+        });
+
+        btnSkip.onclick = () => window.location.href = hotmartUrl;
+    </script>
+</body>
+</html>
